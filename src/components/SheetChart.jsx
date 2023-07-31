@@ -29,7 +29,7 @@ const SheetChart = () => {
   const [sheetValues, setSheetValues] = useState();
 
   const url =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vROlxbsrlEs9GlPD4Cl7bLD4ngBrqaaT4MlcEHUlToUvKH4vHzUPfTw-L2LcWF9t4yVkA7QO4zF3MXv/pub?output=csv";
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTYI2AIVj5sLF9sAwcq-qIuzbb2ySSZldbiirtz7NZGMtnTNCKA4W99ygIJBHCI1hZq6D0XI3tZfzx/pub?gid=1101023674&single=true&output=csv";
   useEffect(() => {
     Papa.parse(url, {
       download: true,
@@ -43,12 +43,29 @@ const SheetChart = () => {
           Realisasi: [],
         };
 
+        const dateNow = new Date();
+        const year = dateNow.getFullYear();
+        const month = dateNow.getMonth() + 1;
+        const date = dateNow.getDate();
+
         results.data.forEach((values) => {
           for (let key in values) {
             if (key == "KM") {
               sheetData[key].push(Number(values[key]));
             } else if (key == "Program" || key == "Realisasi") {
-              sheetData[key].push(new Date(values[key]).getTime());
+              let newTime;
+              if (
+                isNaN(
+                  new Date(
+                    year + "-0" + month + "-" + date + "T0" + values[key]
+                  )
+                )
+              ) {
+                newTime = year + "-0" + month + "-" + date + "T" + values[key];
+              } else {
+                newTime = year + "-0" + month + "-" + date + "T0" + values[key];
+              }
+              sheetData[key].push(new Date(newTime).getTime());
               // sheetData[key].push(Number(values[key]));
             } else {
               sheetData[key].push(values[key]);
@@ -61,7 +78,7 @@ const SheetChart = () => {
     });
   }, []);
 
-  console.log(sheetValues);
+  console.log("sheetValues = ", sheetValues);
 
   let data = {};
   let options = {};
@@ -106,9 +123,9 @@ const SheetChart = () => {
               minute: "hh:mm a",
             },
           },
-          ticks: {
-            maxTicksLimit: 15,
-          },
+          // ticks: {
+          //   maxTicksLimit: 15,
+          // },
           title: {
             display: true,
             text: "Waktu Perjalanan KA",
@@ -129,7 +146,7 @@ const SheetChart = () => {
   }
 
   return (
-    <Box sx={{ height: "90vh" }}>
+    <Box>
       <Box>{sheetValues ? <Line options={options} data={data} /> : <></>}</Box>
     </Box>
   );
