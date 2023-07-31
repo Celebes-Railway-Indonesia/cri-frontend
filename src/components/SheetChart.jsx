@@ -13,7 +13,9 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-import { Box } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { colors } from "../styles/theme";
+import axios from "axios";
 
 ChartJS.register(
   TimeScale,
@@ -26,82 +28,57 @@ ChartJS.register(
 );
 
 const SheetChart = () => {
+  const [sheets, setSheets] = useState();
+  const [selectedSheet, setSelectedSheet] = useState("");
+  const [selectedValues, setSelectedValues] = useState();
   const [sheetValues, setSheetValues] = useState();
 
-  const url =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTYI2AIVj5sLF9sAwcq-qIuzbb2ySSZldbiirtz7NZGMtnTNCKA4W99ygIJBHCI1hZq6D0XI3tZfzx/pub?gid=1101023674&single=true&output=csv";
+  const handleChange = (e) => {
+    setSelectedSheet(e.target.value);
+    setSelectedValues(sheetValues[e.target.value]);
+  };
+
   useEffect(() => {
-    Papa.parse(url, {
-      download: true,
-      header: true,
-      complete: (results) => {
-        console.log("results = ", results);
-        let sheetData = {
-          Stasiun: [],
-          KM: [],
-          Program: [],
-          Realisasi: [],
-        };
-
-        const dateNow = new Date();
-        const year = dateNow.getFullYear();
-        const month = dateNow.getMonth() + 1;
-        const date = dateNow.getDate();
-
-        results.data.forEach((values) => {
-          for (let key in values) {
-            if (key == "KM") {
-              sheetData[key].push(Number(values[key]));
-            } else if (key == "Program" || key == "Realisasi") {
-              let newTime;
-              if (
-                isNaN(
-                  new Date(
-                    year + "-0" + month + "-" + date + "T0" + values[key]
-                  )
-                )
-              ) {
-                newTime = year + "-0" + month + "-" + date + "T" + values[key];
-              } else {
-                newTime = year + "-0" + month + "-" + date + "T0" + values[key];
-              }
-              sheetData[key].push(new Date(newTime).getTime());
-              // sheetData[key].push(Number(values[key]));
-            } else {
-              sheetData[key].push(values[key]);
-            }
-          }
-        });
-
-        setSheetValues(sheetData);
-      },
-    });
+    axios
+      .get(
+        "https://script.google.com/macros/s/AKfycbybte8TqnzDt4saVCvWMr0WHGsGPWiFLKtLYacKPif2CO8yJvbQ-6OvuB4pksYJ41-Y/exec"
+      )
+      .then(function (response) {
+        let data = response.data;
+        console.log("data = ", data);
+        let arr = [];
+        for (let key in data) {
+          arr.push(key);
+        }
+        setSheets(arr);
+        setSelectedSheet(Object.keys(data)[0]);
+        setSelectedValues(data[Object.keys(data)[0]]);
+        setSheetValues(data);
+      });
   }, []);
-
-  console.log("sheetValues = ", sheetValues);
 
   let data = {};
   let options = {};
-  if (sheetValues) {
+  if (selectedValues) {
     data = {
       datasets: [
         {
           label: "Program",
-          data: sheetValues["KM"].map((v, i) => ({
-            x: sheetValues["Program"][i],
+          data: selectedValues["KM"].map((v, i) => ({
+            x: selectedValues["Program"][i],
             y: v,
           })),
-          borderColor: "rgb(255, 99, 132)",
-          backgroundColor: "rgba(255, 99, 132, 0.5)",
+          borderColor: colors.grey[200],
+          backgroundColor: colors.grey[300],
         },
         {
           label: "Realisasi",
-          data: sheetValues["KM"].map((v, i) => ({
-            x: sheetValues["Realisasi"][i],
+          data: selectedValues["KM"].map((v, i) => ({
+            x: selectedValues["Realisasi"][i],
             y: v,
           })),
-          borderColor: "rgb(53, 162, 235)",
-          backgroundColor: "rgba(53, 162, 235, 0.5)",
+          borderColor: colors.blue[500],
+          backgroundColor: colors.blue[600],
         },
       ],
     };
@@ -123,9 +100,9 @@ const SheetChart = () => {
               minute: "hh:mm a",
             },
           },
-          // ticks: {
-          //   maxTicksLimit: 15,
-          // },
+          ticks: {
+            maxTicksLimit: 15,
+          },
           title: {
             display: true,
             text: "Waktu Perjalanan KA",
@@ -146,8 +123,22 @@ const SheetChart = () => {
   }
 
   return (
-    <Box>
-      <Box>{sheetValues ? <Line options={options} data={data} /> : <></>}</Box>
+    <Box sx={{ p: 2 }}>
+      <Box>
+        <FormControl>
+          <InputLabel>Tanggal</InputLabel>
+          <Select value={selectedSheet} label="Tanggal" onChange={handleChange}>
+            {sheets?.map((sheet, i) => (
+              <MenuItem key={i} value={sheet}>
+                {sheet}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+      <Box>
+        {selectedValues ? <Line options={options} data={data} /> : <></>}
+      </Box>
     </Box>
   );
 };
