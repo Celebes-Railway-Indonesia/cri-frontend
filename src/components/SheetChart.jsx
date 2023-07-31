@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
-import { LineChart } from "@mui/x-charts";
-import {
-  ArgumentAxis,
-  Chart,
-  LineSeries,
-  ValueAxis,
-} from "@devexpress/dx-react-chart-material-ui";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,6 +13,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
+import { Box } from "@mui/material";
 
 ChartJS.register(
   TimeScale,
@@ -31,7 +25,7 @@ ChartJS.register(
   Legend
 );
 
-const SpreadSheet = () => {
+const SheetChart = () => {
   const [sheetValues, setSheetValues] = useState();
 
   const url =
@@ -41,6 +35,7 @@ const SpreadSheet = () => {
       download: true,
       header: true,
       complete: (results) => {
+        console.log("results = ", results);
         let sheetData = {
           Stasiun: [],
           KM: [],
@@ -53,7 +48,7 @@ const SpreadSheet = () => {
             if (key == "KM") {
               sheetData[key].push(Number(values[key]));
             } else if (key == "Program" || key == "Realisasi") {
-              sheetData[key].push(new Date(values[key]));
+              sheetData[key].push(new Date(values[key]).getTime());
               // sheetData[key].push(Number(values[key]));
             } else {
               sheetData[key].push(values[key]);
@@ -94,6 +89,15 @@ const SpreadSheet = () => {
       ],
     };
     options = {
+      plugins: {
+        title: {
+          display: true,
+          text: "Grafik GAPEKA",
+          font: {
+            size: 25,
+          },
+        },
+      },
       scales: {
         x: {
           type: "time",
@@ -105,18 +109,30 @@ const SpreadSheet = () => {
           ticks: {
             maxTicksLimit: 15,
           },
+          title: {
+            display: true,
+            text: "Waktu Perjalanan KA",
+          },
         },
         y: {
           // ticks: {
           //   callback: function(value, index, ticks) {
           //   },
           // }
+          title: {
+            display: true,
+            text: "KM",
+          },
         },
       },
     };
   }
 
-  return sheetValues ? <Line options={options} data={data} /> : <></>;
+  return (
+    <Box sx={{ height: "90vh" }}>
+      <Box>{sheetValues ? <Line options={options} data={data} /> : <></>}</Box>
+    </Box>
+  );
 };
 
-export default SpreadSheet;
+export default SheetChart;
