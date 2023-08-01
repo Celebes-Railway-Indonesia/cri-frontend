@@ -41,7 +41,7 @@ const SheetChart = () => {
   useEffect(() => {
     axios
       .get(
-        "https://script.google.com/macros/s/AKfycbybte8TqnzDt4saVCvWMr0WHGsGPWiFLKtLYacKPif2CO8yJvbQ-6OvuB4pksYJ41-Y/exec"
+        "https://script.google.com/macros/s/AKfycbyits0CTrT6hLhivXlE7hjNbYS_0f4JRibKP45cCkiN5ftJoui1X4sYQIyHVy9nKtCq/exec"
       )
       .then(function (response) {
         let data = response.data;
@@ -136,7 +136,7 @@ const SheetChart = () => {
           </Select>
         </FormControl>
       </Box>
-      <Box>
+      <Box sx={{height: '80vh'}}>
         {selectedValues ? <Line options={options} data={data} /> : <></>}
       </Box>
     </Box>
