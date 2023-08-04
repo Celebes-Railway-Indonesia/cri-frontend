@@ -41,7 +41,7 @@ const SheetChart = () => {
   useEffect(() => {
     axios
       .get(
-        "https://script.google.com/macros/s/AKfycbyits0CTrT6hLhivXlE7hjNbYS_0f4JRibKP45cCkiN5ftJoui1X4sYQIyHVy9nKtCq/exec"
+        "https://script.google.com/macros/s/AKfycbyGGf8N_AUp7QQWV_l_FKxNSaBvO9zQdCkObwfrRZVqhrMMad16qWKOeUvrwaO6oKY/exec"
       )
       .then(function (response) {
         let data = response.data;

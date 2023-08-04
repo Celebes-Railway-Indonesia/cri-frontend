@@ -17,6 +17,7 @@ import {
 import FolderIcon from "@mui/icons-material/Folder";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { colors } from "../styles/theme";
+import CRI_logo from "../images/CRI-logo_teks-white.png";
 
 const DrawerItem = ({ url, handleClick, children, label, ...props }) => {
   return (
@@ -30,10 +31,7 @@ const DrawerItem = ({ url, handleClick, children, label, ...props }) => {
             mr: 2,
           }}
         >
-          <ListItemIcon
-          >
-            {children}
-          </ListItemIcon>
+          <ListItemIcon>{children}</ListItemIcon>
           <ListItemText
             primary={label}
             sx={{
@@ -57,9 +55,15 @@ const Sidebar = () => {
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            CRI - Laporan Perjalanan KA
-          </Typography>
+          <Box
+            component={"img"}
+            alt="Company Icon"
+            src={CRI_logo}
+            sx={{
+              height: 54,
+              width: 151,
+            }}
+          ></Box>
         </Toolbar>
       </AppBar>
       <Drawer
